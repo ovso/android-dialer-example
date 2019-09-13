@@ -5,8 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_call.*
 import java.util.*
 
 /**
@@ -18,11 +17,6 @@ class CallActivity : Activity(), View.OnClickListener, CallManager.StateListener
     private var mElapsedTime: Long = 0
     private var mHandler: Handler? = null
 
-    private var mTextStatus: TextView? = null
-    private var mTextDuration: TextView? = null
-    private var mTextDisplayName: TextView? = null
-    private var mButtonHangup: ImageView? = null
-    private var mButtonAnswer: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,15 +24,8 @@ class CallActivity : Activity(), View.OnClickListener, CallManager.StateListener
 
         hideBottomNavigationBar()
 
-        mTextStatus = findViewById(R.id.textStatus)
-        mTextDuration = findViewById(R.id.textDuration)
-        mTextDisplayName = findViewById(R.id.textDisplayName)
-
-        mButtonHangup = findViewById(R.id.buttonHangup)
-        mButtonAnswer = findViewById(R.id.buttonAnswer)
-
-        mButtonHangup!!.setOnClickListener(this)
-        mButtonAnswer!!.setOnClickListener(this)
+        buttonHangup.setOnClickListener(this)
+        buttonAnswer.setOnClickListener(this)
 
         updateView(CallManager.get().uiCall)
 
@@ -78,15 +65,15 @@ class CallActivity : Activity(), View.OnClickListener, CallManager.StateListener
      * @param uiCall
      */
     private fun updateView(uiCall: UiCall) {
-        mTextStatus!!.visibility =
+        textStatus.visibility =
             if (uiCall.status === UiCall.Status.ACTIVE) View.GONE else View.VISIBLE
 
-        mTextStatus!!.text = uiCall.status!!.toString()
+        textStatus.text = uiCall.status!!.toString()
 
-        mTextDuration!!.visibility =
+        textDuration.visibility =
             if (uiCall.status === UiCall.Status.ACTIVE) View.VISIBLE else View.GONE
 
-        mButtonHangup!!.visibility =
+        buttonHangup.visibility =
             if (uiCall.status === UiCall.Status.DISCONNECTED) View.GONE else View.VISIBLE
 
         if (uiCall.status === UiCall.Status.DISCONNECTED) {
@@ -99,9 +86,9 @@ class CallActivity : Activity(), View.OnClickListener, CallManager.StateListener
             stopTimer()
         }
 
-        mTextDisplayName!!.text = uiCall.displayName
+        textDisplayName.text = uiCall.displayName
 
-        mButtonAnswer!!.visibility =
+        buttonAnswer.visibility =
             if (uiCall.status === UiCall.Status.RINGING) View.VISIBLE else View.GONE
     }
 
@@ -126,12 +113,18 @@ class CallActivity : Activity(), View.OnClickListener, CallManager.StateListener
     }
 
     private fun toDurationString(time: Long): String {
-        return String.format(Locale.US, "%02d:%02d:%02d", time / 3600, time % 3600 / 60, time % 60)
+        return String.format(
+            Locale.US,
+            "%02d:%02d:%02d",
+            time / 3600,
+            time % 3600 / 60,
+            time % 60
+        )
     }
 
     override fun handleMessage(msg: Message): Boolean {
         when (msg.what) {
-            MSG_UPDATE_ELAPSEDTIME -> mTextDuration!!.text = toDurationString(mElapsedTime)
+            MSG_UPDATE_ELAPSEDTIME -> textDisplayName.text = toDurationString(mElapsedTime)
         }
         return true
     }
